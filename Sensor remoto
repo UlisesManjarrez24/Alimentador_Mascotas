@@ -1,0 +1,57 @@
+include "IRLremote.h"
+
+// En este Pin irá conectada la salida del módulo IR
+#define pinIR 2
+
+// Selecciona el mando a distancia.
+//CNec IRLremote;
+//CPanasonic IRLremote;
+CHashIR IRLremote; // control remoto Samsung
+//#define IRLremote Sony12
+
+void setup()
+{
+  // Inicia la comunicación serial para la salida de depuración
+  Serial.begin(115200);
+  // Espera a que se inicie la comunicación serial
+  while (!Serial);
+
+  // Comienza a leer el control remoto. Se seleccionará automáticamente PinInterrupt o PinChangeInterrupt*
+  if (!IRLremote.begin(pinIR))
+    Serial.println(F("No ha elegido un pin válido."));
+  
+  // Establece el pin 9 como salida para controlar un LED
+  pinMode(9, OUTPUT);
+}
+
+void loop()
+{
+  if (IRLremote.available())
+  {
+    // Obtiene los nuevos datos del control remoto
+    auto data = IRLremote.read();
+
+    switch(data.command)
+    {
+      case 0x18319BAD: 
+        Serial.println("Tecla: Arriba"); 
+        encenderL(); 
+        break;
+      case 0xF39EEBAD: 
+        Serial.println("Tecla: Abajo");
+        apagarL(); 
+        break;
+    }
+  }  
+  delay(300);
+}
+
+void encenderL(){
+  Serial.println("Encendido");
+  digitalWrite(9, HIGH);
+}
+
+void apagarL(){
+  Serial.println("Apagado");
+  digitalWrite(9, LOW);
+}
